@@ -11,6 +11,10 @@ const int WMMA_M = 16;
 const int WMMA_N = 16;
 const int WMMA_K = 16;
 
+__global__ void matmuls_tc(half* A, half* B, float *C, int n){
+
+}
+
 __global__ void convertFp32ToFp16 (half *out, float *in, int n) {
     int idx = blockDim.x * blockIdx.x + threadIdx.x;
     if (idx < n) {
@@ -102,27 +106,31 @@ int main(int argc, char **argv){
 
     block = dim3(TCSIZE, TCSIZE, 1);    
     grid = dim3((totaln+TCSIZE*TCSIZE-1)/(TCSIZE*TCSIZE), 1, 1);
-   
+  
+    convertFp32ToFp16 <<< (totaln + 255)/256, 256 >>> (Adh, Ad, totaln);
+    convertFp32ToFp16 <<< (totaln + 255)/256, 256 >>> (Bdh, Bd, totaln);
+
     if(alg == 0){
         cudaEventRecord(start);
         matmuls_basic<<<grid, block>>>(Ad, Bd, Cd, totaln);
         cudaEventRecord(stop);
         cudaEventSynchronize(stop);
-        float time = 0;
-        cudaEventElapsedTime(&time, start, stop);
-        printf("%s: %f secs\n", "matmuls_basic_simple", time/1000.0f);
     }
     if(alg == 1){
-        convertFp32ToFp16 <<< (totaln + 255)/256, 256 >>> (Adh, Ad, totaln);
-        convertFp32ToFp16 <<< (totaln + 255)/256, 256 >>> (Bdh, Bd, totaln);
         cudaEventRecord(start);
         matmuls_basic_half<<<grid, block>>>(Adh, Bdh, Cd, totaln);
         cudaEventRecord(stop);
-        cudaEventSynchronize(stop);
-        float time = 0;
-        cudaEventElapsedTime(&time, start, stop);
-        printf("%s: %f secs\n", "matmuls_basic_simple", time/1000.0f);
     }
+    if(alg == 2){    
+        cudaEventRecord(start);
+        matmuls_tc<<<grid, block>>>(Adh, Bdh, Cd, totaln);
+        cudaEventRecord(stop);
+    }
+
+    cudaEventSynchronize(stop);
+    float time = 0;
+    cudaEventElapsedTime(&time, start, stop);
+    printf("%s: %f secs\n", "matmuls_basic_simple", time/1000.0f);
 
     cudaMemcpy(A, Ad, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
     cudaMemcpy(B, Bd, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
