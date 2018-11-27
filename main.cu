@@ -104,24 +104,27 @@ int main(int argc, char **argv){
 
     dim3 block, grid;
 
-    block = dim3(TCSIZE, TCSIZE, 1);    
-    grid = dim3((totaln+TCSIZE*TCSIZE-1)/(TCSIZE*TCSIZE), 1, 1);
-  
     convertFp32ToFp16 <<< (totaln + 255)/256, 256 >>> (Adh, Ad, totaln);
     convertFp32ToFp16 <<< (totaln + 255)/256, 256 >>> (Bdh, Bd, totaln);
 
     if(alg == 0){
+        block = dim3(TCSIZE, TCSIZE, 1);
+        grid = dim3((totaln+TCSIZE*TCSIZE-1)/(TCSIZE*TCSIZE), 1, 1);
         cudaEventRecord(start);
         matmuls_basic<<<grid, block>>>(Ad, Bd, Cd, totaln);
         cudaEventRecord(stop);
         cudaEventSynchronize(stop);
     }
     if(alg == 1){
+        block = dim3(TCSIZE, TCSIZE, 1);
+        grid = dim3((totaln+TCSIZE*TCSIZE-1)/(TCSIZE*TCSIZE), 1, 1);
         cudaEventRecord(start);
         matmuls_basic_half<<<grid, block>>>(Adh, Bdh, Cd, totaln);
         cudaEventRecord(stop);
     }
     if(alg == 2){    
+        block = dim3(TCSIZE, 2, 1);
+        grid = dim3(nmats, 1, 1);
         cudaEventRecord(start);
         matmuls_tc<<<grid, block>>>(Adh, Bdh, Cd, totaln);
         cudaEventRecord(stop);
@@ -130,7 +133,7 @@ int main(int argc, char **argv){
     cudaEventSynchronize(stop);
     float time = 0;
     cudaEventElapsedTime(&time, start, stop);
-    printf("%s: %f secs\n", "matmuls_basic_simple", time/1000.0f);
+    printf("%s: %f secs\n","matmuls" , time/1000.0f);
 
     cudaMemcpy(A, Ad, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
     cudaMemcpy(B, Bd, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
