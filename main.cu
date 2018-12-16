@@ -125,10 +125,10 @@ int main(int argc, char **argv){
         block = dim3(TCSIZE, TCSIZE, 1);
         grid = dim3((totaln+TCSIZE*TCSIZE-1)/(TCSIZE*TCSIZE), 1, 1);
         cudaEventRecord(start);
-        for(int i=0;i<100;++i){
+    //    for(int i=0;i<100;++i){
             matmuls_basic<<<grid, block>>>(Ad, Bd, Cd, totaln);
             cudaDeviceSynchronize();   
-        }
+    //    }
         cudaEventRecord(stop);
         cudaEventSynchronize(stop);
     }
@@ -136,19 +136,19 @@ int main(int argc, char **argv){
         block = dim3(TCSIZE, TCSIZE, 1);
         grid = dim3((totaln+TCSIZE*TCSIZE-1)/(TCSIZE*TCSIZE), 1, 1);
         cudaEventRecord(start);
-        for(int i = 0; i<100; ++i){
+    //    for(int i = 0; i<100; ++i){
             matmuls_basic_half<<<grid, block>>>(Adh, Bdh, Cd, totaln);
             cudaDeviceSynchronize();
-        }
+    //    }
         cudaEventRecord(stop);
     }
     if(alg == 2){    
         block = dim3(TCSIZE*2,1, 1);
         grid = dim3(nmats, 1, 1);
         cudaEventRecord(start);
-        for(int i=0;i<100; ++i){
+    //    for(int i=0;i<100; ++i){
             matmuls_tc<<<grid, block>>>(Adh, Bdh, Cd, totaln);
-        }
+   //     }
         cudaEventRecord(stop);
     }
 
@@ -156,7 +156,8 @@ int main(int argc, char **argv){
     float time = 0;
     cudaEventElapsedTime(&time, start, stop);
     //printf("%s: %f secs\n","matmuls" , time/100000.0f);
-    printf("%i, %f, %i \n",alg , time/100000.0f, nmats);
+    //printf("%i, %f, %i \n",alg , time/100000.0f, nmats);
+    printf("%f \n", time/100000.0f);
 
     cudaMemcpy(A, Ad, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
     cudaMemcpy(B, Bd, sizeof(float)*totaln, cudaMemcpyDeviceToHost);

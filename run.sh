@@ -1,19 +1,20 @@
 #!/bin/sh
 echo "Borrando data.csv existente..."
-rm data.csv
+rm old_layout.csv
+rm new_layout.csv
 echo "Creando data.csv nuevo..."
-printf "alg,time,N \n" >>data.csv
 echo "Nuevo archivo creado..."
 echo "Comenzando a iterar algorimo..."
-for i in {0..2}
+for ((i=0;i<100;i++))
 do
-    for ((j=1024;j<=1048576;j*=2))
-    do
-        output=$(./prog $i $j)
-        printf "$output \n" >> data.csv
-        echo "$output"
-    done
-    echo "Cambiando algoritmo..."
+    output=$(./prog 1 1048576)
+    printf "$output \n" >> old_layout.csv
+done
+echo "Cambiando algoritmo..."
+for ((i=0;i<100;i++))
+do
+    output=$(./prog 2 1048576)
+    printf "$output \n" >> new_layout.csv
 done
 echo "Listo"
 
