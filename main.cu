@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <cuda.h>
 #include <mma.h>
 #include <cstdio>
@@ -59,7 +60,7 @@ void initmat(float *m, int nmats, const int val){
         int off = k*TCSIZE*TCSIZE;
         for(int i=0; i<TCSIZE; ++i){
             for(int j=0; j<TCSIZE; ++j){
-                m[off + i*TCSIZE + j] = (val*(k+1));
+                m[off + i*TCSIZE + j] = (val)*rand();//(val*(k+1));
             }
         }
     }
@@ -106,6 +107,8 @@ int main(int argc, char **argv){
     initmat(A, nmats, 1);
     initmat(B, nmats, 1);
     initmat(C, nmats, 0);
+
+    //printmats(B, nmats, "[after] mat A:");
 
     cudaMemcpy(Ad, A, sizeof(float)*totaln, cudaMemcpyHostToDevice);
     cudaMemcpy(Bd, B, sizeof(float)*totaln, cudaMemcpyHostToDevice);
@@ -163,6 +166,7 @@ int main(int argc, char **argv){
     cudaMemcpy(B, Bd, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
     cudaMemcpy(C, Cd, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
 
+    //printmats(C, nmats, "[after] mat C:");
 /*    if(nmats < PRINTLIMIT){
         printmats(C, nmats, "[after] mat C:");
     }
