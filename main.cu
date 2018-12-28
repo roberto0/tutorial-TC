@@ -160,7 +160,7 @@ int main(int argc, char **argv){
     cudaEventElapsedTime(&time, start, stop);
     //printf("%s: %f secs\n","matmuls" , time/100000.0f);
     //printf("%i, %f, %i \n",alg , time/100000.0f, nmats);
-    printf("%f \n", time/100000.0f);
+    printf("%f \n", time/100.0f);
 
     cudaMemcpy(A, Ad, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
     cudaMemcpy(B, Bd, sizeof(float)*totaln, cudaMemcpyDeviceToHost);
